@@ -1,7 +1,5 @@
 #include <gtk/gtk.h>
 
-G_BEGIN_DECLS
-
 #define GLAREA_ERROR (glarea_error_quark ())
 
 typedef enum {
@@ -101,6 +99,7 @@ static guint create_shader (int shader_type, const char *source, GError **error,
 
 	int status;
 	glGetShaderiv (shader, GL_COMPILE_STATUS, &status);
+	
 	if (status == GL_FALSE)
 	{
 		int log_len;
@@ -169,7 +168,7 @@ static gboolean init_shaders (guint *program_out, guint *mvp_location_out, guint
 		glGetProgramInfoLog (program, log_len, NULL, buffer);
 
 		g_set_error (error, GLAREA_ERROR, GLAREA_ERROR_SHADER_LINK,
-								 "Linking failure in program: %s", buffer);
+		             "Linking failure in program: %s", buffer);
 
 		g_free (buffer);
 
@@ -219,6 +218,7 @@ static void gl_init (GlareaAppWindow *self)
 
 	/* initialize the shaders and retrieve the program data */
 	GError *error = NULL;
+	
 	if (!init_shaders (&self->program,
 	                   &self->mvp_location,
 	                   &self->position_index,
