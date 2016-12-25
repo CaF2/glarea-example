@@ -52,8 +52,8 @@ struct vertex_info {
 
 /* the vertex data is constant */
 static const struct vertex_info vertex_data[] = {
-	{ {	0.0f,	0.500f, 0.0f }, { 1.f, 0.f, 0.f } },
-	{ {	0.5f, -0.366f, 0.0f }, { 0.f, 1.f, 0.f } },
+	{ { 0.0f, 0.500f, 0.0f }, { 1.f, 0.f, 0.f } },
+	{ { 0.5f, -0.366f, 0.0f }, { 0.f, 1.f, 0.f } },
 	{ { -0.5f, -0.366f, 0.0f }, { 0.f, 0.f, 1.f } },
 };
 
@@ -102,23 +102,23 @@ static guint create_shader (int shader_type, const char *source, GError **error,
 	int status;
 	glGetShaderiv (shader, GL_COMPILE_STATUS, &status);
 	if (status == GL_FALSE)
-		{
-			int log_len;
-			glGetShaderiv (shader, GL_INFO_LOG_LENGTH, &log_len);
+	{
+		int log_len;
+		glGetShaderiv (shader, GL_INFO_LOG_LENGTH, &log_len);
 
-			char *buffer = g_malloc (log_len + 1);
-			glGetShaderInfoLog (shader, log_len, NULL, buffer);
+		char *buffer = g_malloc (log_len + 1);
+		glGetShaderInfoLog (shader, log_len, NULL, buffer);
 
-			g_set_error (error, GLAREA_ERROR, GLAREA_ERROR_SHADER_COMPILATION,
-			             "Compilation failure in %s shader: %s",
-			             shader_type == GL_VERTEX_SHADER ? "vertex" : "fragment",
-			             buffer);
+		g_set_error (error, GLAREA_ERROR, GLAREA_ERROR_SHADER_COMPILATION,
+		             "Compilation failure in %s shader: %s",
+		             shader_type == GL_VERTEX_SHADER ? "vertex" : "fragment",
+		             buffer);
 
-			g_free (buffer);
+		g_free (buffer);
 
-			glDeleteShader (shader);
-			shader = 0;
-		}
+		glDeleteShader (shader);
+		shader = 0;
+	}
 
 	if (shader_out != NULL)
 		*shader_out = shader;
@@ -220,18 +220,18 @@ static void gl_init (GlareaAppWindow *self)
 	/* initialize the shaders and retrieve the program data */
 	GError *error = NULL;
 	if (!init_shaders (&self->program,
-										 &self->mvp_location,
-										 &self->position_index,
-										 &self->color_index,
-										 &error))
-		{
-			/* set the GtkGLArea in error state, so we'll see the error message
-			 * rendered inside the viewport
-			 */
-			gtk_gl_area_set_error (GTK_GL_AREA (self->gl_drawing_area), error);
-			g_error_free (error);
-			return;
-		}
+	                   &self->mvp_location,
+	                   &self->position_index,
+	                   &self->color_index,
+	                   &error))
+	{
+		/* set the GtkGLArea in error state, so we'll see the error message
+		 * rendered inside the viewport
+		 */
+		gtk_gl_area_set_error (GTK_GL_AREA (self->gl_drawing_area), error);
+		g_error_free (error);
+		return;
+	}
 
 	/* initialize the vertex buffers */
 	init_buffers (self->position_index, self->color_index, &self->vao);
@@ -301,7 +301,7 @@ static void init_mvp (float *res)
 	res[3] = 0.f; res[7] = 0.f; res[11] = 0.f; res[15] = 1.f;
 }
 
-static void compute_mvp (float *res, float phi, float	theta, float psi)
+static void compute_mvp (float *res, float phi, float theta, float psi)
 {
 	float x = phi * (G_PI / 180.f);
 	float y = theta * (G_PI / 180.f);
@@ -324,9 +324,9 @@ static void compute_mvp (float *res, float phi, float	theta, float psi)
 	
 	/* apply all three Euler angles rotations using the three matrices:
 	 *
-	 * ⎡  c3 s3 0 ⎤ ⎡ c2	0 -s2 ⎤ ⎡ 1	  0  0 ⎤
-	 * ⎢ -s3 c3 0 ⎥ ⎢	0  1   0 ⎥ ⎢ 0	 c1 s1 ⎥
-	 * ⎣  0  0  1 ⎦ ⎣ s2	0  c2 ⎦ ⎣ 0 -s1 c1 ⎦
+	 * ⎡  c3 s3 0 ⎤ ⎡ c2 0 -s2 ⎤ ⎡ 1   0  0 ⎤
+	 * ⎢ -s3 c3 0 ⎥ ⎢ 0  1   0 ⎥ ⎢ 0  c1 s1 ⎥
+	 * ⎣  0  0  1 ⎦ ⎣ s2 0  c2 ⎦ ⎣ 0 -s1 c1 ⎦
 	 */
 	res[0] = c3c2;	res[4] = s3c1 + c3s2s1;	res[8] = s3s1 - c3s2c1; res[12] = 0.f;
 	res[1] = -s3c2; res[5] = c3c1 - s3s2s1;	res[9] = c3s1 + s3s2c1; res[13] = 0.f;
@@ -352,9 +352,9 @@ static void adjustment_changed(GtkWidget *widget, GlareaAppWindow *self)
 
 	/* recompute the mvp matrix */
 	compute_mvp (self->mvp,
-							 self->rotation_angles[X_AXIS],
-							 self->rotation_angles[Y_AXIS],
-							 self->rotation_angles[Z_AXIS]);
+	             self->rotation_angles[X_AXIS],
+	             self->rotation_angles[Y_AXIS],
+	             self->rotation_angles[Z_AXIS]);
 
 	/* queue a redraw on the GtkGLArea to ensure its contents
 	 * get redrawn in the next frame
