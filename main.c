@@ -11,8 +11,6 @@ typedef enum {
 
 GQuark glarea_error_quark (void);
 
-G_END_DECLS
-
 #include <epoxy/gl.h>
 #include <math.h>
 
@@ -44,7 +42,7 @@ typedef struct GlareaAppWindow
 	guint mvp_location;
 	guint position_index;
 	guint color_index;
-}GlareaAppWindow;
+} GlareaAppWindow;
 
 /* position and color information for each vertex */
 struct vertex_info {
@@ -59,10 +57,7 @@ static const struct vertex_info vertex_data[] = {
 	{ { -0.5f, -0.366f, 0.0f }, { 0.f, 0.f, 1.f } },
 };
 
-static void
-init_buffers (guint	position_index,
-							guint	color_index,
-							guint *vao_out)
+static void init_buffers (guint position_index, guint color_index, guint *vao_out)
 {
 	guint vao, buffer;
 
@@ -78,14 +73,14 @@ init_buffers (guint	position_index,
 	/* enable and set the position attribute */
 	glEnableVertexAttribArray (position_index);
 	glVertexAttribPointer (position_index, 3, GL_FLOAT, GL_FALSE,
-												 sizeof (struct vertex_info),
-												 (GLvoid *) (G_STRUCT_OFFSET (struct vertex_info, position)));
+	                       sizeof (struct vertex_info),
+	                       (GLvoid *) (G_STRUCT_OFFSET (struct vertex_info, position)));
 
 	/* enable and set the color attribute */
 	glEnableVertexAttribArray (color_index);
 	glVertexAttribPointer (color_index, 3, GL_FLOAT, GL_FALSE,
-												 sizeof (struct vertex_info),
-												 (GLvoid *) (G_STRUCT_OFFSET (struct vertex_info, color)));
+	                       sizeof (struct vertex_info),
+	                       (GLvoid *) (G_STRUCT_OFFSET (struct vertex_info, color)));
 
 	/* reset the state; we will re-enable the VAO when needed */
 	glBindBuffer (GL_ARRAY_BUFFER, 0);
@@ -98,11 +93,7 @@ init_buffers (guint	position_index,
 		*vao_out = vao;
 }
 
-static guint
-create_shader (int					shader_type,
-							 const char	*source,
-							 GError		 **error,
-							 guint			 *shader_out)
+static guint create_shader (int shader_type, const char *source, GError **error, guint *shader_out)
 {
 	guint shader = glCreateShader (shader_type);
 	glShaderSource (shader, 1, &source, NULL);
@@ -119,9 +110,9 @@ create_shader (int					shader_type,
 			glGetShaderInfoLog (shader, log_len, NULL, buffer);
 
 			g_set_error (error, GLAREA_ERROR, GLAREA_ERROR_SHADER_COMPILATION,
-									 "Compilation failure in %s shader: %s",
-									 shader_type == GL_VERTEX_SHADER ? "vertex" : "fragment",
-									 buffer);
+			             "Compilation failure in %s shader: %s",
+			             shader_type == GL_VERTEX_SHADER ? "vertex" : "fragment",
+			             buffer);
 
 			g_free (buffer);
 
@@ -135,12 +126,7 @@ create_shader (int					shader_type,
 	return shader != 0;
 }
 
-static gboolean
-init_shaders (guint	 *program_out,
-							guint	 *mvp_location_out,
-							guint	 *position_location_out,
-							guint	 *color_location_out,
-							GError **error)
+static gboolean init_shaders (guint *program_out, guint *mvp_location_out, guint *position_location_out, guint *color_location_out, GError **error)
 {
 	gchar *source=NULL;
 	guint program = 0;
@@ -222,8 +208,7 @@ out:
 	return program != 0;
 }
 
-static void
-gl_init (GlareaAppWindow *self)
+static void gl_init (GlareaAppWindow *self)
 {
 	/* we need to ensure that the GdkGLContext is set before calling GL API */
 	gtk_gl_area_make_current (GTK_GL_AREA (self->gl_drawing_area));
@@ -252,8 +237,7 @@ gl_init (GlareaAppWindow *self)
 	init_buffers (self->position_index, self->color_index, &self->vao);
 }
 
-static void
-gl_fini (GlareaAppWindow *self)
+static void gl_fini (GlareaAppWindow *self)
 {
 	/* we need to ensure that the GdkGLContext is set before calling GL API */
 	gtk_gl_area_make_current (GTK_GL_AREA (self->gl_drawing_area));
@@ -269,8 +253,7 @@ gl_fini (GlareaAppWindow *self)
 		glDeleteProgram (self->program);
 }
 
-static void
-draw_triangle (GlareaAppWindow *self)
+static void draw_triangle (GlareaAppWindow *self)
 {
 	if (self->program == 0 || self->vao == 0)
 		return;
@@ -292,8 +275,7 @@ draw_triangle (GlareaAppWindow *self)
 	glUseProgram (0);
 }
 
-static gboolean
-gl_draw (GlareaAppWindow *self)
+static gboolean gl_draw (GlareaAppWindow *self)
 {
 	/* clear the viewport; the viewport is automatically resized when
 	 * the GtkGLArea gets a new size allocation
@@ -310,8 +292,7 @@ gl_draw (GlareaAppWindow *self)
 	return FALSE;
 }
 
-static void
-init_mvp (float *res)
+static void init_mvp (float *res)
 {
 	/* initialize a matrix as an identity matrix */
 	res[0] = 1.f; res[4] = 0.f; res[8] = 0.f; res[12] = 0.f;
@@ -320,11 +301,7 @@ init_mvp (float *res)
 	res[3] = 0.f; res[7] = 0.f; res[11] = 0.f; res[15] = 1.f;
 }
 
-static void
-compute_mvp (float *res,
-						 float	phi,
-						 float	theta,
-						 float	psi)
+static void compute_mvp (float *res, float phi, float	theta, float psi)
 {
 	float x = phi * (G_PI / 180.f);
 	float y = theta * (G_PI / 180.f);
@@ -347,9 +324,9 @@ compute_mvp (float *res,
 	
 	/* apply all three Euler angles rotations using the three matrices:
 	 *
-	 * ⎡	c3 s3 0 ⎤ ⎡ c2	0 -s2 ⎤ ⎡ 1		0	0 ⎤
-	 * ⎢ -s3 c3 0 ⎥ ⎢	0	1	 0 ⎥ ⎢ 0	 c1 s1 ⎥
-	 * ⎣	0	0	1 ⎦ ⎣ s2	0	c2 ⎦ ⎣ 0 -s1 c1 ⎦
+	 * ⎡  c3 s3 0 ⎤ ⎡ c2	0 -s2 ⎤ ⎡ 1	  0  0 ⎤
+	 * ⎢ -s3 c3 0 ⎥ ⎢	0  1   0 ⎥ ⎢ 0	 c1 s1 ⎥
+	 * ⎣  0  0  1 ⎦ ⎣ s2	0  c2 ⎦ ⎣ 0 -s1 c1 ⎦
 	 */
 	res[0] = c3c2;	res[4] = s3c1 + c3s2s1;	res[8] = s3s1 - c3s2c1; res[12] = 0.f;
 	res[1] = -s3c2; res[5] = c3c1 - s3s2s1;	res[9] = c3s1 + s3s2c1; res[13] = 0.f;
